@@ -266,7 +266,7 @@ Based on the analysis, here are some key insights and actionable recommendtaions
 > **Longer Rides for Casual Riders : **Casual riders have longer average ride durations compared to members.
 
 
-> **Peak Hours : **Casual riders are most active during morning and evening rush hours (8-9 AM and 5-6 PM).
+  > **Peak Hours : **Casual riders are most active during morning and evening rush hours (8-9 AM and 5-6 PM).
 
 
 
