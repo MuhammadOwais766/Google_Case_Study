@@ -1,0 +1,7 @@
+"0","ggplot(top_start_stations, aes(x = reorder(start_station_name, -number_of_rides), y = number_of_rides)) +"
+"0","  geom_bar(stat = ""identity"", fill = ""steelblue"") +"
+"0","  labs(title = ""Top 10 Most Used Start Stations by Casual Users"","
+"0","       x = ""Start Station"","
+"0","       y = ""Number of Rides"") +"
+"0","  theme_minimal() +"
+"0","  theme(axis.text.x = element_text(angle = 45, hjust = 1))"

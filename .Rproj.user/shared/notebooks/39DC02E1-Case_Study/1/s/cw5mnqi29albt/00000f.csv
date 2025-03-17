@@ -1,0 +1,2 @@
+"0","q1_2019 <- mutate(q1_2019, ride_id = as.character(ride_id), rideable_type = as.character(rideable_type))"
+"0","all_trips <- bind_rows(q1_2019, q1_2020)"

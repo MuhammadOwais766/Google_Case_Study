@@ -1,0 +1,2 @@
+"0","casual_users <- casual_users %>%"
+"0","  mutate(start_hour = hour(started_at), end_hour = hour(ended_at))"

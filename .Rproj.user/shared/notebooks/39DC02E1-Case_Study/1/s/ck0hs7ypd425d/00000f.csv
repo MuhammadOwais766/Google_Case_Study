@@ -1,0 +1,2 @@
+"0","all_trips <- all_trips %>% "
+"0","  mutate(member_casual = recode(member_casual, ""Subscriber"" = ""member"", ""Customer"" = ""casual""))"

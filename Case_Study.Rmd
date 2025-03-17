@@ -1,0 +1,296 @@
+---
+title: "Case Study"
+author: "Owais"
+date: "2025-03-14"
+output:
+  html_document: default
+  word_document: default
+---
+
+# Cyclistic Bike-Share Analysis: Converting Casual Riders to Annual Members
+
+
+This case study focuses on analyzing Cyclistic's bike-share data to identify trends and patterns that can help convert casual riders into annual members. The analysis is performed using R, and the dataset includes bike trips from Q1 2019 and Q1 2020. The goal is to provide actionable insights to the marketing team to design targeted strategies.
+
+
+## Step 1: Collect Data
+
+
+First, we load the necessary libraries and import the data for Q1 2019 and Q1 2020.
+
+```{r warning=FALSE}
+library(tidyverse)
+library(dplyr)
+library(readr)
+library(janitor)
+library(skimr)
+library(conflicted)
+library(ggplot2)
+library(lubridate)
+library(viridis)  # For better color scales in heatmaps
+
+#Set dplyr::filter and dplyr::lag as the default choices
+conflict_prefer("filter", "dplyr")
+conflict_prefer("lag", "dplyr")
+
+# Load data
+q1_2019 <- read_csv("C:/Users/LENOVO/Downloads/Google DA cert/Course 8/Case_Study_1/Divvy_Trips_2019_Q1.csv")
+q1_2020 <- read_csv("C:/Users/LENOVO/Downloads/Google DA cert/Course 8/Case_Study_1/Divvy_Trips_2020_Q1.csv")
+```
+
+## Step 2: Wrangle and Combine Data
+
+Now we rename columns for consistency.
+
+```{r warning=FALSE}
+q1_2019 <- rename(q1_2019,
+                  ride_id = trip_id,
+                  rideable_type = bikeid,
+                  started_at = start_time,
+                  ended_at = end_time,
+                  start_station_name = from_station_name,
+                  start_station_id = from_station_id,
+                  end_station_name = to_station_name,
+                  end_station_id = to_station_id,
+                  member_casual = usertype)
+```
+
+
+Next, we convert data types and stack data.
+
+```{r warning=FALSE}
+q1_2019 <- mutate(q1_2019, ride_id = as.character(ride_id), rideable_type = as.character(rideable_type))
+all_trips <- bind_rows(q1_2019, q1_2020)
+```
+
+Now we remove unnecessary columns.
+
+```{r warning=FALSE}
+all_trips <- all_trips %>%  
+  select(-c(start_lat, start_lng, end_lat, end_lng, birthyear, gender, "tripduration"))
+```
+
+
+## Step 3: Clean and Prepare Data
+
+First, we re-code the "member_casual" column.
+
+```{r warning=FALSE}
+all_trips <- all_trips %>% 
+  mutate(member_casual = recode(member_casual, "Subscriber" = "member", "Customer" = "casual"))
+```
+
+Next, we add date, month, day, and year columns.
+
+```{r warning=FALSE}
+all_trips$date <- as.Date(all_trips$started_at)
+all_trips$month <- format(as.Date(all_trips$date), "%m")
+all_trips$day <- format(as.Date(all_trips$date), "%d")
+all_trips$year <- format(as.Date(all_trips$date), "%Y")
+all_trips$day_of_week <- format(as.Date(all_trips$date), "%A")
+```
+
+Now, we calculate ride length and clean data.
+
+```{r warning=FALSE}
+all_trips$ride_length <- difftime(all_trips$ended_at, all_trips$started_at)
+all_trips$ride_length <- as.numeric(as.character(all_trips$ride_length))
+all_trips_v2 <- all_trips[!(all_trips$start_station_name == "HQ QR" | all_trips$ride_length < 0),]
+```
+
+
+## Step 4: Analyze Data
+
+First, we look at the descriptive statistics
+
+```{r warning=FALSE}
+summary(all_trips_v2$ride_length)
+aggregate(all_trips_v2$ride_length ~ all_trips_v2$member_casual, FUN = mean)
+```
+
+Next, we analyze average ride length by day of the week.
+
+```{r warning=FALSE}
+all_trips_v2$day_of_week <- ordered(all_trips_v2$day_of_week, levels=c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+aggregate(all_trips_v2$ride_length ~ all_trips_v2$member_casual + all_trips_v2$day_of_week, FUN = mean)
+```
+
+We visualize ridership by user type and weekday.
+
+```{r warning=FALSE}
+all_trips_v2 %>% 
+  mutate(weekday = wday(started_at, label = TRUE)) %>% 
+  group_by(member_casual, weekday) %>% 
+  summarise(number_of_rides = n(), average_duration = mean(ride_length)) %>% 
+  arrange(member_casual, weekday)  %>% 
+  ggplot(aes(x = weekday, y = number_of_rides, fill = member_casual)) +
+  geom_col(position = "dodge") +
+  labs(title = "Number of Rides by User Type and Weekday",
+       x = "Weekday",
+       y = "Number of Rides",
+       fill = "User Type") +
+  theme_minimal()
+```
+
+Now, we create a visualization for average duration by user type and weekday.
+
+```{r warning=FALSE}
+all_trips_v2 %>% 
+  mutate(weekday = wday(started_at, label = TRUE)) %>% 
+  group_by(member_casual, weekday) %>% 
+  summarise(number_of_rides = n()
+            ,average_duration = mean(ride_length)) %>% 
+  arrange(member_casual, weekday)  %>% 
+  ggplot(aes(x = weekday, y = average_duration, fill = member_casual)) +
+  geom_col(position = "dodge")
+```
+
+#### Start and End Stations
+
+Now, we look at the top 10 Start and End Stations for Casual Riders.
+
+```{r warning=FALSE}
+casual_users <- all_trips_v2 %>% filter(member_casual == "casual")
+
+# Top 10 Start Stations
+top_start_stations <- casual_users %>% 
+  group_by(start_station_name) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(desc(number_of_rides)) %>% 
+  head(10)
+
+# Top 10 End Stations
+top_end_stations <- casual_users %>% 
+  group_by(end_station_name) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(desc(number_of_rides)) %>% 
+  head(10)
+```
+
+Visualizing the top 10 start stations.
+
+```{r warning=FALSE}
+ggplot(top_start_stations, aes(x = reorder(start_station_name, -number_of_rides), y = number_of_rides)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Top 10 Most Used Start Stations by Casual Users",
+       x = "Start Station",
+       y = "Number of Rides") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Next, we visualize the top 10 end stations with the most casual users' traffic.
+
+```{r warning=FALSE}
+ggplot(top_end_stations, aes(x = reorder(end_station_name, -number_of_rides), y = number_of_rides)) +
+  geom_bar(stat = "identity", fill = "tomato") +
+  labs(title = "Top 10 Most Used End Stations by Casual Users",
+       x = "End Station",
+       y = "Number of Rides") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+#### Hourly Traffic Analysis
+
+Now, we will extract hour from started_at and ended_at to look for further trends.
+
+```{r warning=FALSE}
+casual_users <- casual_users %>%
+  mutate(start_hour = hour(started_at), end_hour = hour(ended_at))
+```
+
+Next, we write the code for Hourly Traffic for Start Stations.
+
+```{r warning=FALSE}
+start_hour_traffic <- casual_users %>%
+  group_by(start_station_name, start_hour) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+
+# Filter for top 10 start stations
+start_hour_traffic_top <- start_hour_traffic %>%
+  filter(start_station_name %in% top_start_stations$start_station_name)
+```
+
+Visualizing the start station traffic by a heatmap.
+
+```{r warning=FALSE}
+ggplot(start_hour_traffic_top, aes(x = start_hour, y = start_station_name, fill = count)) +
+  geom_tile() +
+  scale_fill_viridis(option = "plasma") +
+  labs(title = "Start Station Traffic by Hour (Heatmap)",
+       x = "Hour of the Day",
+       y = "Start Station",
+       fill = "Number of Rides") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Now, we will look at hourly traffic for end stations.
+
+```{r warning=FALSE}
+end_hour_traffic <- casual_users %>%
+  group_by(end_station_name, end_hour) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+
+# Filter for top 10 end stations
+end_hour_traffic_top <- end_hour_traffic %>%
+  filter(end_station_name %in% top_end_stations$end_station_name)
+```
+
+Visualizing end station traffic by hour using a heatmap.
+
+```{r warning=FALSE}
+ggplot(end_hour_traffic_top, aes(x = end_hour, y = end_station_name, fill = count)) +
+  geom_tile() +
+  scale_fill_viridis(option = "plasma") +
+  labs(title = "End Station Traffic by Hour (Heatmap)",
+       x = "Hour of the Day",
+       y = "End Station",
+       fill = "Number of Rides") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## Step 5: Business Strategies and Decision-Making
+
+Based on the analysis, here are some key insights and actionable recommendtaions to convert casual riders into annual members:
+
+#### Key Insights
+
+> **Casual Riders Prefer Weekends : **Casual riders tend to use bikes more on weekends, while members use bikes consistently throughout the week.
+
+
+> **Longer Rides for Casual Riders : **Casual riders have longer average ride durations compared to members.
+
+
+> **Peak Hours : **Casual riders are most active during morning and evening rush hours (8-9 AM and 5-6 PM).
+
+
+
+
+#### Actionable Recommendations
+
+> **Weekend Membership Promotions : **Offer discounted weekend-only memberships to attract casual riders who primarily use bikes on weekends.
+
+
+> **Timely Advertisement : **Focus marketing efforts on the top 10 start stations for casual riders, especially during peak hours.
+
+
+> **Incentivize Longer Rides : **Introduce rewards or discounts for casual riders who exceed a certain ride duration, encouraging them to convert to annual members.
+
+> **Seasonal Offers : **Offer seasonal membership discounts during peak usage periods to attract casual riders.
+
+> **Feedback Mechanism : **Implement a feedback mechanism at popular stations to gather insights from casual riders and address their concerns.
+
+> **Loyalty Programs : **Implement loyalty programs that reward frequent casual riders with discounts or perks for converting to annual memberships.
+
+
+
+## Conclusion
+
+This analysis provides insights into the differences between casual riders and annual members. The visualizations and summary statistics can help inform strategies to convert casual riders into annual members.
+
+*This R Markdown file provides a comprehensive overview of the analysis, including data collection, wrangling, cleaning, descriptive analysis, and visualization. It also includes comments and explanations for each step, making it easy to follow and reproduce.*

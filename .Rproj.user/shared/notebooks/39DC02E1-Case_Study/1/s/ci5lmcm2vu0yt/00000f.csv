@@ -1,0 +1,8 @@
+"0","start_hour_traffic <- casual_users %>%"
+"0","  group_by(start_station_name, start_hour) %>%"
+"0","  summarise(count = n()) %>%"
+"0","  arrange(desc(count))"
+"2","`summarise()` has grouped output by 'start_station_name'. You can override using the `.groups` argument."
+"0","# Filter for top 10 start stations"
+"0","start_hour_traffic_top <- start_hour_traffic %>%"
+"0","  filter(start_station_name %in% top_start_stations$start_station_name)"

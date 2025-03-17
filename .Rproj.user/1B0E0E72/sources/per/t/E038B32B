@@ -1,0 +1,27 @@
+{
+    "id": "E038B32B",
+    "path": "~/Case_Study/Data_Clean_Viz.R",
+    "project_path": "Data_Clean_Viz.R",
+    "type": "r_source",
+    "hash": "2974394958",
+    "contents": "",
+    "dirty": true,
+    "created": 1741719752505.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "254,32",
+        "scrollLine": "240"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1742129663,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1742222452573,
+    "read_only": false,
+    "read_only_alternatives": []
+}

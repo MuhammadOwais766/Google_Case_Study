@@ -1,0 +1,2 @@
+"0","all_trips <- all_trips %>%  "
+"0","  select(-c(start_lat, start_lng, end_lat, end_lng, birthyear, gender, ""tripduration""))"

@@ -1,0 +1,37 @@
+"0","library(tidyverse)"
+"0","library(dplyr)"
+"0","library(readr)"
+"0","library(janitor)"
+"0","library(skimr)"
+"0","library(conflicted)"
+"0","library(ggplot2)"
+"0","library(lubridate)"
+"0","library(viridis)  # For better color scales in heatmaps"
+"0",""
+"0","#Set dplyr::filter and dplyr::lag as the default choices"
+"0","conflict_prefer(""filter"", ""dplyr"")"
+"2","[38;5;232m[90m[conflicted][38;5;232m Will prefer [1m[34mdplyr[38;5;232m[22m::filter over any other package.[39m"
+"0","conflict_prefer(""lag"", ""dplyr"")"
+"2","[38;5;232m[90m[conflicted][38;5;232m Will prefer [1m[34mdplyr[38;5;232m[22m::lag over any other package.[39m"
+"0","# Load data"
+"0","q1_2019 <- read_csv(""C:/Users/LENOVO/Downloads/Google DA cert/Course 8/Case_Study_1/Divvy_Trips_2019_Q1.csv"")"
+"2","[1mRows: [22m[34m365069[39m [1mColumns: [22m[34m12[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m───────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m  (4): from_station_name, to_station_name, usertype, gender
+[32mdbl[39m  (5): trip_id, bikeid, from_station_id, to_station_id, birthyear
+[32mnum[39m  (1): tripduration
+[34mdttm[39m (2): start_time, end_time"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","q1_2020 <- read_csv(""C:/Users/LENOVO/Downloads/Google DA cert/Course 8/Case_Study_1/Divvy_Trips_2020_Q1.csv"")"
+"2","[1mRows: [22m[34m426887[39m [1mColumns: [22m[34m13[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m───────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m  (5): ride_id, rideable_type, start_station_name, end_station_name, member_...
+[32mdbl[39m  (6): start_station_id, end_station_id, start_lat, start_lng, end_lat, end_lng
+[34mdttm[39m (2): started_at, ended_at"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
